@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تفاصيل السيارة - CarBid</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Cairo', sans-serif; background: #f0f2f5; }
+        
+        /* ===== القائمة الجانبية الثابتة على اليمين ===== */
+        .sidebar {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 260px;
+            height: 100%;
+            background: #1a1a2e;
+            color: white;
+            padding: 20px 0;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar-header {
+            text-align: center;
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .sidebar-header h2 {
+            color: #e63946;
+            font-size: 24px;
+        }
+        
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            padding: 0 15px;
+        }
+        
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #ccc;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .sidebar-nav a:hover {
+            background: #e63946;
+            color: white;
+            transform: translateX(-5px);
+        }
+        
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 20px 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 30px;
+        }
+        
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #ff6b6b;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255,107,107,0.15);
+            color: #ff6b6b;
+        }
+        
+        /* المحتوى الرئيسي */
+        .main-content {
+            margin-right: 260px;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 30px auto 50px;
+            padding: 20px;
+        }
+        
+        /* إخفاء القائمة العلوية القديمة */
+        .navbar {
+            display: none;
+        }
+        
+        .car-details {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .car-images {
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            padding: 20px;
+            background: #1a1a2e;
+        }
+        
+        .car-images img {
+            width: 300px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        
+        .car-info {
+            padding: 30px;
+        }
+        
+        h2 {
+            color: #e63946;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .price {
+            font-size: 36px;
+            font-weight: bold;
+            color: #e63946;
+            margin: 15px 0;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .info-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #555;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            font-size: 18px;
+            color: #333;
+        }
+        
+        .bid-section {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .timer {
+            font-size: 32px;
+            font-weight: bold;
+            color: #e63946;
+            text-align: center;
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 15px;
+            font-family: monospace;
+        }
+        
+        .timer.warning {
+            background: #ffeaa7;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            50% { opacity: 0.7; }
+        }
+        
+        .bid-input {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .bid-input input {
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            width: 250px;
+            font-size: 18px;
+            text-align: center;
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        .bid-input input:focus {
+            outline: none;
+            border-color: #e63946;
+        }
+        
+        .bid-input button {
+            background: #e63946;
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .bid-input button:hover {
+            background: #c1121f;
+            transform: scale(1.02);
+        }
+        
+        .bid-input button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .min-bid-info {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .bid-history {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .bid-item {
+            background: white;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .bid-amount {
+            font-weight: bold;
+            color: #e63946;
+            font-size: 18px;
+        }
+        
+        .owner-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn-start {
+            background: #28a745;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .btn-back {
+            background: #2c3e50;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+        
+        .status-active {
+            background: #28a745;
+            color: white;
+        }
+        
+        .status-sold {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .status-pending {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .msg {
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+        
+        .msg.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .msg.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+                padding: 10px 0;
+            }
+            .sidebar-header h2, .sidebar-nav a span, .logout-btn span {
+                display: none;
+            }
+            .sidebar-nav a {
+                justify-content: center;
+                padding: 12px;
+            }
+            .sidebar-nav a i {
+                margin: 0;
+                font-size: 20px;
+            }
+            .main-content {
+                margin-right: 70px;
+            }
+            .container {
+                padding: 10px;
+                margin-top: 20px;
+            }
+            .timer {
+                font-size: 24px;
+            }
+            .price {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- القائمة الجانبية الثابتة على اليمين -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-gavel"></i> CarBid</h2>
+        </div>
+        <div class="sidebar-nav">
+            <a href="../index.html"><i class="fas fa-home"></i> <span>الرئيسية</span></a>
+            <a href="auctions.html"><i class="fas fa-gavel"></i> <span>المزادات</span></a>
+            <a href="search.html"><i class="fas fa-search"></i> <span>البحث</span></a>
+            <a href="favorites.html"><i class="fas fa-heart"></i> <span>المفضلة</span></a>
+            <a href="my-bids.html"><i class="fas fa-money-bill"></i> <span>عروضي</span></a>
+            <a href="wallet.html"><i class="fas fa-wallet"></i> <span>المحفظة</span></a>
+            <a href="notifications.html"><i class="fas fa-bell"></i> <span>الإشعارات</span></a>
+            <a href="messages.html"><i class="fas fa-envelope"></i> <span>الرسائل</span></a>
+            <a href="profile.html"><i class="fas fa-user"></i> <span>حسابي</span></a>
+        </div>
+        <div class="sidebar-footer">
+            <a href="#" onclick="logout()" class="logout-btn"><i class="fas fa-sign-out-alt"></i> <span>تسجيل خروج</span></a>
+        </div>
+    </div>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="main-content">
+        <div class="container">
+            <div id="successMsg" class="msg success"></div>
+            <div id="errorMsg" class="msg error"></div>
+            <div id="carContainer"></div>
+            <button class="btn-back" onclick="goBack()"><i class="fas fa-arrow-right"></i> العودة</button>
+        </div>
+    </div>
+
+    <script>
+        let carData = null;
+        let timerInterval = null;
+
+        function getCurrentUser() {
+            return JSON.parse(localStorage.getItem('currentUser'));
+        }
+
+        function getCarId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return parseInt(urlParams.get('id'));
+        }
+
+        function showMessage(msg, type) {
+            const msgDiv = document.getElementById(`${type}Msg`);
+            msgDiv.textContent = msg;
+            msgDiv.style.display = 'block';
+            setTimeout(() => {
+                msgDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        function goBack() {
+            if (document.referrer) {
+                window.history.back();
+            } else {
+                window.location.href = 'auctions.html';
+            }
+        }
+
+        function loadCar() {
+            const carId = getCarId();
+            if (!carId) {
+                document.getElementById('carContainer').innerHTML = `
+                    <div class="car-details">
+                        <div class="car-info" style="text-align:center; padding:50px;">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 60px; color: #e63946;"></i>
+                            <h2>لم يتم تحديد سيارة</h2>
+                            <p>يرجى العودة إلى صفحة المزادات واختيار سيارة</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            const cars = JSON.parse(localStorage.getItem('cars')) || [];
+            carData = cars.find(c => c.id === carId);
+            
+            if (!carData) {
+                document.getElementById('carContainer').innerHTML = `
+                    <div class="car-details">
+                        <div class="car-info" style="text-align:center; padding:50px;">
+                            <i class="fas fa-car" style="font-size: 60px; color: #ccc;"></i>
+                            <h2>السيارة غير موجودة</h2>
+                            <p>قد تكون تم حذفها أو انتهى المزاد</p>
+                            <button onclick="window.location.href='auctions.html'" style="background:#e63946; color:white; border:none; padding:10px 20px; border-radius:8px; margin-top:15px;">📋 عرض المزادات</button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            renderCarDetails();
+        }
+
+        function renderCarDetails() {
+            const currentUser = getCurrentUser();
+            const isOwner = currentUser && currentUser.id === carData.sellerId;
+            const isActive = carData.status === 'active';
+            const isSold = carData.status === 'sold';
+            
+            const imagesHtml = (carData.images && carData.images.length > 0) ? 
+                carData.images.map(img => `<img src="${img}" onerror="this.src='https://cdn.pixabay.com/photo/2016/02/13/13/11/car-1197800_640.jpg'">`).join('') :
+                `<img src="https://cdn.pixabay.com/photo/2016/02/13/13/11/car-1197800_640.jpg" onerror="this.src='https://cdn.pixabay.com/photo/2016/02/13/13/11/car-1197800_640.jpg'">`;
+            
+            const minBidIncrement = carData.minBidIncrement || 1000;
+            const nextMinBid = (carData.currentBid || carData.price) + minBidIncrement;
+            
+            // حساب الوقت المتبقي
+            let timeLeftHtml = '--:--:--';
+            if (isActive && carData.endTime) {
+                const end = new Date(carData.endTime).getTime();
+                const now = new Date().getTime();
+                const distance = end - now;
+                if (distance > 0) {
+                    const hours = Math.floor(distance / (1000 * 60 * 60));
+                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                    timeLeftHtml = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                } else {
+                    timeLeftHtml = 'انتهى';
+                }
+            }
+            
+            // سجل العروض
+            const bids = carData.bids || [];
+            const sortedBids = [...bids].sort((a, b) => b.amount - a.amount);
+            const bidsHtml = sortedBids.length === 0 ? 
+                '<div style="text-align:center; padding:20px; color:#999;">لا توجد عروض حتى الآن</div>' : 
+                sortedBids.map(bid => `
+                    <div class="bid-item">
+                        <div>
+                            <strong>${bid.userName}</strong>
+                            <div style="font-size:12px; color:#999;">${new Date(bid.timestamp).toLocaleString('ar')}</div>
+                        </div>
+                        <div class="bid-amount">${bid.amount.toLocaleString()} ر.س</div>
+                    </div>
+                `).join('');
+            
+            document.getElementById('carContainer').innerHTML = `
+                <div class="car-details">
+                    <div class="car-images">${imagesHtml}</div>
+                    <div class="car-info">
+                        <h2>${carData.brand} ${carData.model} (${carData.year})</h2>
+                        <span class="status-badge status-${carData.status === 'active' ? 'active' : (carData.status === 'sold' ? 'sold' : 'pending')}">
+                            ${carData.status === 'active' ? '🔥 مزاد نشط' : (carData.status === 'sold' ? '✅ تم البيع' : '⏳ قيد الانتظار')}
+                        </span>
+                        
+                        <div class="price">💰 ${(carData.currentBid || carData.price).toLocaleString()} ر.س</div>
+                        
+                        <div class="info-grid">
+                            <div class="info-item"><span class="info-label">🏁 الممشى</span><div class="info-value">${(carData.mileage || 0).toLocaleString()} كم</div></div>
+                            <div class="info-item"><span class="info-label">⛽ نوع الوقود</span><div class="info-value">${carData.fuelType || 'بنزين'}</div></div>
+                            <div class="info-item"><span class="info-label">⚙️ ناقل الحركة</span><div class="info-value">${carData.transmission || 'أوتوماتيك'}</div></div>
+                            <div class="info-item"><span class="info-label">📅 السنة</span><div class="info-value">${carData.year}</div></div>
+                            <div class="info-item"><span class="info-label">👤 البائع</span><div class="info-value">${carData.sellerName || 'غير معروف'}</div></div>
+                            <div class="info-item"><span class="info-label">📞 رقم البائع</span><div class="info-value">${carData.sellerPhone || 'غير متوفر'}</div></div>
+                        </div>
+                        
+                        <div class="info-item"><span class="info-label">📝 الوصف</span><div class="info-value">${carData.description || 'لا يوجد وصف'}</div></div>
+                        
+                        ${isActive ? `
+                            <div class="bid-section">
+                                <div class="timer ${timeLeftHtml === 'انتهى' ? 'warning' : ''}" id="timer">${timeLeftHtml}</div>
+                                <div class="bid-input">
+                                    <input type="number" id="bidAmount" placeholder="أدخل عرضك" min="${nextMinBid}" step="${minBidIncrement}" value="">
+                                    <button onclick="placeBid()" id="bidBtn"><i class="fas fa-gavel"></i> مزايدة</button>
+                                </div>
+                                <div class="min-bid-info">
+                                    ⬆️ أقل عرض مسموح: ${nextMinBid.toLocaleString()} ر.س (أقل زيادة: ${minBidIncrement.toLocaleString()} ر.س)
+                                </div>
+                            </div>
+                        ` : isSold ? `
+                            <div class="bid-section" style="background:#e8f5e9;">
+                                <h3 style="color:#28a745;">✨ تم بيع السيارة!</h3>
+                                <p>تم البيع بمبلغ <strong>${(carData.finalPrice || carData.currentBid).toLocaleString()} ر.س</strong></p>
+                                ${carData.winnerName ? `<p>🏆 الفائز: <strong>${carData.winnerName}</strong></p>` : ''}
+                            </div>
+                        ` : `
+                            <div class="bid-section" style="background:#fff3cd;">
+                                <h3 style="color:#ffc107;">⏳ في انتظار بدء المزاد</h3>
+                                <p>سيتم بدء المزاد قريباً</p>
+                            </div>
+                        `}
+                        
+                        <div class="bid-history">
+                            <h3><i class="fas fa-history"></i> سجل العروض (${bids.length} عرض)</h3>
+                            ${bidsHtml}
+                        </div>
+                        
+                        ${isOwner && carData.status === 'pending' ? `
+                            <div class="owner-actions">
+                                <button class="btn-start" onclick="startAuction()"><i class="fas fa-play"></i> بدء المزاد</button>
+                                <button class="btn-delete" onclick="deleteCar()"><i class="fas fa-trash"></i> حذف السيارة</button>
+                            </div>
+                        ` : ''}
+                        
+                        ${!isOwner && isActive ? `
+                            <div class="owner-actions">
+                                <button class="btn-start" onclick="contactSeller()" style="background:#25D366;"><i class="fab fa-whatsapp"></i> تواصل مع البائع</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            
+            if (isActive && carData.endTime && new Date(carData.endTime).getTime() > new Date().getTime()) {
+                startTimer(carData.endTime);
+            }
+        }
+
+        function startAuction() {
+            const duration = prompt('كم مدة المزاد بالساعات؟ (1-168)', '24');
+            if (!duration) return;
+            
+            const hours = parseInt(duration);
+            if (isNaN(hours) || hours < 1 || hours > 168) {
+                showMessage('الرجاء إدخال مدة صحيحة بين 1 و 168 ساعة', 'error');
+                return;
+            }
+            
+            const endTime = new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
+            
+            let cars = JSON.parse(localStorage.getItem('cars')) || [];
+            const index = cars.findIndex(c => c.id === carData.id);
+            if (index !== -1) {
+                cars[index].status = 'active';
+                cars[index].endTime = endTime;
+                cars[index].startTime = new Date().toISOString();
+                cars[index].minBidIncrement = cars[index].minBidIncrement || 1000;
+                localStorage.setItem('cars', JSON.stringify(cars));
+                carData = cars[index];
+            }
+            
+            renderCarDetails();
+            showMessage('✅ تم بدء المزاد بنجاح!', 'success');
+        }
+
+        function placeBid() {
+            const currentUser = getCurrentUser();
+            if (!currentUser) {
+                showMessage('يرجى تسجيل الدخول أولاً', 'error');
+                setTimeout(() => window.location.href = '../login.html', 1500);
+                return;
+            }
+            
+            // منع البائع من المزايدة على سيارته
+            if (currentUser.id === carData.sellerId) {
+                showMessage('❌ لا يمكنك المزايدة على سيارتك الخاصة!', 'error');
+                return;
+            }
+            
+            const bidAmount = parseInt(document.getElementById('bidAmount').value);
+            const minBidIncrement = carData.minBidIncrement || 1000;
+            const currentBid = carData.currentBid || carData.price;
+            const nextMinBid = currentBid + minBidIncrement;
+            
+            if (!bidAmount || isNaN(bidAmount)) {
+                showMessage('الرجاء إدخال مبلغ صحيح', 'error');
+                return;
+            }
+            
+            if (bidAmount < nextMinBid) {
+                showMessage(`⚠️ يجب أن يكون عرضك ${nextMinBid.toLocaleString()} ر.س على الأقل`, 'error');
+                return;
+            }
+            
+            // التحقق من الرصيد
+            let users = JSON.parse(localStorage.getItem('users')) || [];
+            const userIndex = users.findIndex(u => u.id === currentUser.id);
+            const requiredBalance = Math.floor(bidAmount * 0.1);
+            
+            if ((users[userIndex]?.balance || 0) < requiredBalance) {
+                showMessage(`⚠️ رصيدك غير كافي! يلزم ${requiredBalance.toLocaleString()} ر.س (10% من قيمة العرض) للمزايدة`, 'error');
+                return;
+            }
+            
+            // خصم الرصيد
+            users[userIndex].balance = (users[userIndex].balance || 0) - requiredBalance;
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            // تحديث المستخدم الحالي
+            const updatedUser = users[userIndex];
+            localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+            
+            // تسجيل العملية المالية
+            const transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            transactions.unshift({
+                id: Date.now(),
+                userId: currentUser.id,
+                type: 'bid',
+                amount: requiredBalance,
+                description: `تأمين مزايدة على ${carData.brand} ${carData.model} بقيمة ${bidAmount.toLocaleString()} ر.س`,
+                date: new Date().toISOString()
+            });
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            
+            // تسجيل العرض
+            const newBid = {
+                id: Date.now(),
+                carId: carData.id,
+                userId: currentUser.id,
+                userName: currentUser.name,
+                amount: bidAmount,
+                timestamp: new Date().toISOString()
+            };
+            
+            let cars = JSON.parse(localStorage.getItem('cars')) || [];
+            const carIndex = cars.findIndex(c => c.id === carData.id);
+            if (carIndex !== -1) {
+                const currentBids = cars[carIndex].bids || [];
+                currentBids.push(newBid);
+                cars[carIndex].bids = currentBids;
+                cars[carIndex].currentBid = bidAmount;
+                cars[carIndex].lastBidder = currentUser.id;
+                cars[carIndex].lastBidderName = currentUser.name;
+                localStorage.setItem('cars', JSON.stringify(cars));
+                carData = cars[carIndex];
+            }
+            
+            // إشعار للبائع
+            addNotification(carData.sellerId, `💰 عرض جديد على ${carData.brand} ${carData.model}: ${bidAmount.toLocaleString()} ر.س من ${currentUser.name}`);
+            
+            renderCarDetails();
+            showMessage(`✅ تم تقديم عرضك بقيمة ${bidAmount.toLocaleString()} ر.س بنجاح!`, 'success');
+        }
+
+        function deleteCar() {
+            if (confirm('⚠️ هل أنت متأكد من حذف هذه السيارة؟ لا يمكن التراجع عن هذا الإجراء.')) {
+                let cars = JSON.parse(localStorage.getItem('cars')) || [];
+                cars = cars.filter(c => c.id !== carData.id);
+                localStorage.setItem('cars', JSON.stringify(cars));
+                showMessage('🗑️ تم حذف السيارة بنجاح', 'success');
+                setTimeout(() => window.location.href = 'my-cars.html', 1500);
+            }
+        }
+
+        function contactSeller() {
+            const phone = carData.sellerPhone;
+            if (phone) {
+                let cleanPhone = phone.replace(/\s/g, '').replace(/^0/, '966');
+                window.open(`https://wa.me/${cleanPhone}`, '_blank');
+            } else {
+                showMessage('رقم الجوال غير متوفر', 'error');
+            }
+        }
+
+        function startTimer(endTime) {
+            if (timerInterval) clearInterval(timerInterval);
+            
+            timerInterval = setInterval(() => {
+                const now = new Date().getTime();
+                const end = new Date(endTime).getTime();
+                const distance = end - now;
+                
+                if (distance < 0) {
+                    clearInterval(timerInterval);
+                    endAuction();
+                    return;
+                }
+                
+                const hours = Math.floor(distance / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                const timerElement = document.getElementById('timer');
+                if (timerElement) {
+                    timerElement.innerHTML = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                    if (hours < 1) {
+                        timerElement.classList.add('warning');
+                    }
+                }
+            }, 1000);
+        }
+
+        function endAuction() {
+            let cars = JSON.parse(localStorage.getItem('cars')) || [];
+            const carIndex = cars.findIndex(c => c.id === carData.id);
+            
+            if (carIndex === -1) return;
+            if (cars[carIndex].status !== 'active') return;
+            
+            const bids = cars[carIndex].bids || [];
+            const sortedBids = [...bids].sort((a, b) => b.amount - a.amount);
+            
+            if (sortedBids.length > 0) {
+                const winner = sortedBids[0];
+                cars[carIndex].status = 'sold';
+                cars[carIndex].winnerId = winner.userId;
+                cars[carIndex].winnerName = winner.userName;
+                cars[carIndex].finalPrice = winner.amount;
+                cars[carIndex].currentBid = winner.amount;
+                
+                addNotification(winner.userId, `🎉 تهانينا! لقد فزت بسيارة ${carData.brand} ${carData.model} بقيمة ${winner.amount.toLocaleString()} ر.س`);
+                addNotification(carData.sellerId, `✅ انتهى مزاد سيارتك ${carData.brand} ${carData.model}. تم البيع بمبلغ ${winner.amount.toLocaleString()} ر.س للفائز: ${winner.userName}`);
+            } else {
+                cars[carIndex].status = 'pending';
+                cars[carIndex].endTime = null;
+                addNotification(carData.sellerId, `⚠️ انتهى مزاد سيارتك ${carData.brand} ${carData.model} بدون أي عروض. يمكنك إعادة المزاد مرة أخرى.`);
+            }
+            
+            localStorage.setItem('cars', JSON.stringify(cars));
+            carData = cars[carIndex];
+            renderCarDetails();
+        }
+
+        function addNotification(userId, message) {
+            const notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+            notifications.unshift({
+                id: Date.now(),
+                userId: userId,
+                message: message,
+                read: false,
+                createdAt: new Date().toISOString()
+            });
+            localStorage.setItem('notifications', JSON.stringify(notifications));
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = '../login.html';
+        }
+
+        // تحميل الصفحة
+        loadCar();
+    </script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>سجل العمليات - CarBid</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Cairo', sans-serif; background: #f0f2f5; }
+        .navbar { background: white; padding: 15px 10%; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        .logo h2 { color: #e63946; }
+        .nav-links a { margin-right: 20px; text-decoration: none; color: #333; }
+        .container { max-width: 1000px; margin: 100px auto 50px; padding: 20px; }
+        .card { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { color: #e63946; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .filter-buttons { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .filter-btn { background: #f8f9fa; border: 1px solid #ddd; padding: 8px 20px; border-radius: 20px; cursor: pointer; }
+        .filter-btn.active { background: #e63946; color: white; border-color: #e63946; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: right; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; color: #555; }
+        .deposit { color: #28a745; font-weight: bold; }
+        .withdraw { color: #dc3545; font-weight: bold; }
+        .total-sum { margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 10px; text-align: center; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo"><h2>🚗 CarBid</h2></div>
+        <div class="nav-links">
+            <a href="../index.html">الرئيسية</a>
+            <a href="wallet.html">المحفظة</a>
+            <a href="profile.html">حسابي</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <h2><i class="fas fa-chart-line"></i> سجل العمليات المالية</h2>
+            
+            <div class="filter-buttons">
+                <button class="filter-btn active" onclick="filterTransactions('all')">الكل</button>
+                <button class="filter-btn" onclick="filterTransactions('deposit')">إيداع</button>
+                <button class="filter-btn" onclick="filterTransactions('withdraw')">سحب</button>
+                <button class="filter-btn" onclick="filterTransactions('bid')">مزايدات</button>
+            </div>
+            
+            <div style="overflow-x: auto;">
+                <table id="transactionsTable">
+                    <thead>
+                        <tr><th>التاريخ</th><th>الوصف</th><th>المبلغ</th><th>النوع</th></tr>
+                    </thead>
+                    <tbody id="transactionsBody"></tbody>
+                </table>
+            </div>
+            
+            <div class="total-sum" id="totalSum"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentFilter = 'all';
+        
+        function getCurrentUser() {
+            return JSON.parse(localStorage.getItem('currentUser'));
+        }
+        
+        function loadTransactions() {
+            const currentUser = getCurrentUser();
+            if (!currentUser) {
+                window.location.href = '../login.html';
+                return;
+            }
+            
+            const transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            let myTransactions = transactions.filter(t => t.userId === currentUser.id);
+            
+            if (currentFilter !== 'all') {
+                myTransactions = myTransactions.filter(t => t.type === currentFilter);
+            }
+            
+            const tbody = document.getElementById('transactionsBody');
+            
+            if (myTransactions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">لا توجد عمليات</td></tr>';
+                document.getElementById('totalSum').innerHTML = '';
+                return;
+            }
+            
+            tbody.innerHTML = myTransactions.map(t => `
+                <tr>
+                    <td>${new Date(t.date).toLocaleDateString('ar')} ${new Date(t.date).toLocaleTimeString('ar')}</td>
+                    <td>${t.description}</td>
+                    <td class="${t.type === 'deposit' ? 'deposit' : 'withdraw'}">${t.type === 'deposit' ? '+' : '-'} ${t.amount.toLocaleString()} ر.س</td>
+                    <td>${getTypeText(t.type)}</td>
+                </tr>
+            `).join('');
+            
+            const totalDeposit = myTransactions.filter(t => t.type === 'deposit').reduce((sum, t) => sum + t.amount, 0);
+            const totalWithdraw = myTransactions.filter(t => t.type === 'withdraw' || t.type === 'bid').reduce((sum, t) => sum + t.amount, 0);
+            
+            document.getElementById('totalSum').innerHTML = `
+                📊 إجمالي الإيداعات: ${totalDeposit.toLocaleString()} ر.س | 
+                💸 إجمالي المدفوعات: ${totalWithdraw.toLocaleString()} ر.س |
+                💰 الرصيد الحالي: ${((currentUser.balance || 0)).toLocaleString()} ر.س
+            `;
+        }
+        
+        function getTypeText(type) {
+            const types = {
+                'deposit': '💰 إيداع',
+                'withdraw': '💸 سحب',
+                'bid': '🎯 مزايدة'
+            };
+            return types[type] || type;
+        }
+        
+        function filterTransactions(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            loadTransactions();
+        }
+        
+        loadTransactions();
+    </script>
+</body>
+</html>

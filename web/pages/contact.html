@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>تواصل معنا - CarBid</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Cairo', sans-serif; background: #f0f2f5; }
+        .navbar { background: white; padding: 15px 10%; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        .logo h2 { color: #e63946; }
+        .nav-links a { margin-right: 20px; text-decoration: none; color: #333; }
+        .container { max-width: 800px; margin: 100px auto 50px; padding: 20px; }
+        .card { background: white; border-radius: 20px; padding: 40px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        h1 { color: #e63946; margin-bottom: 20px; text-align: center; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-family: 'Cairo', sans-serif; }
+        textarea { resize: vertical; height: 120px; }
+        button { background: #e63946; color: white; border: none; padding: 15px 30px; border-radius: 10px; cursor: pointer; width: 100%; font-size: 16px; }
+        .success { color: green; text-align: center; margin-top: 15px; display: none; }
+        .contact-info { margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 15px; display: flex; justify-content: space-around; flex-wrap: wrap; text-align: center; }
+        .contact-info i { font-size: 30px; color: #e63946; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo"><h2>🚗 CarBid</h2></div>
+        <div class="nav-links">
+            <a href="../index.html">الرئيسية</a>
+            <a href="about.html">من نحن</a>
+            <a href="contact.html">تواصل معنا</a>
+            <a href="profile.html">حسابي</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <h1><i class="fas fa-envelope"></i> تواصل معنا</h1>
+            
+            <div class="contact-info">
+                <div><i class="fas fa-phone-alt"></i><br><strong>الهاتف</strong><br>966500000000+</div>
+                <div><i class="fas fa-envelope"></i><br><strong>البريد</strong><br>support@carbid.com</div>
+                <div><i class="fab fa-whatsapp"></i><br><strong>واتساب</strong><br>966500000000+</div>
+            </div>
+            
+            <form id="contactForm">
+                <div class="form-group">
+                    <input type="text" id="name" placeholder="الاسم الكامل" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="email" placeholder="البريد الإلكتروني" required dir="ltr">
+                </div>
+                <div class="form-group">
+                    <select id="subject">
+                        <option value="استفسار عام">استفسار عام</option>
+                        <option value="مشكلة في المزاد">مشكلة في المزاد</option>
+                        <option value="مشكلة في الدفع">مشكلة في الدفع</option>
+                        <option value="اقتراح">اقتراح</option>
+                        <option value="شكوى">شكوى</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <textarea id="message" placeholder="اكتب رسالتك هنا..." required></textarea>
+                </div>
+                <button type="button" onclick="sendMessage()"><i class="fas fa-paper-plane"></i> إرسال</button>
+                <div class="success" id="successMsg">تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.</div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function sendMessage() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value;
+            
+            if (!name || !email || !message) {
+                alert('يرجى تعبئة جميع الحقول');
+                return;
+            }
+            
+            const contacts = JSON.parse(localStorage.getItem('contacts')) || [];
+            contacts.push({
+                id: Date.now(),
+                name: name,
+                email: email,
+                subject: subject,
+                message: message,
+                status: 'new',
+                createdAt: new Date().toISOString()
+            });
+            localStorage.setItem('contacts', JSON.stringify(contacts));
+            
+            document.getElementById('successMsg').style.display = 'block';
+            document.getElementById('contactForm').reset();
+            
+            setTimeout(() => {
+                document.getElementById('successMsg').style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

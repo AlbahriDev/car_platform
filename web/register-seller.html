@@ -1,0 +1,724 @@
+<!-- صفحة تسجيل البائع  -->
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل البائع </title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: #f5f7fb;
+            color: #1a1a2e;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* شريط التنقل */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo h2 {
+            color: #e63946;
+            font-size: 24px;
+        }
+        
+        .badge {
+            background: #e63946;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            margin-right: 25px;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #e63946;
+        }
+        
+        /* قسم تسجيل البائع */
+        .register-seller-page {
+            padding-top: 80px;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fb 0%, #e9ecef 100%);
+        }
+        
+        .register-header {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+        }
+        
+        .copart-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        
+        .register-header h1 {
+            font-size: 42px;
+            margin-bottom: 15px;
+        }
+        
+        .register-header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+        
+        /* محتوى التسجيل */
+        .register-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 40px;
+            margin: 50px 0;
+        }
+        
+        /* نموذج التسجيل */
+        .register-form-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .progress-steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e9ecef;
+            z-index: 0;
+        }
+        
+        .step {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            flex: 1;
+        }
+        
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            background: #e9ecef;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: bold;
+            color: #666;
+        }
+        
+        .step.active .step-circle {
+            background: #e63946;
+            color: white;
+        }
+        
+        .step.completed .step-circle {
+            background: #10b981;
+            color: white;
+        }
+        
+        .step-label {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .step.active .step-label {
+            color: #e63946;
+            font-weight: bold;
+        }
+        
+        .form-title {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #1a1a2e;
+        }
+        
+        .form-subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group label .required {
+            color: #e63946;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: 'Cairo', sans-serif;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #e63946;
+            box-shadow: 0 0 0 3px rgba(230,57,70,0.1);
+        }
+        
+        .terms-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 25px 0;
+        }
+        
+        .terms-checkbox input {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .terms-checkbox label {
+            color: #666;
+        }
+        
+        .terms-checkbox a {
+            color: #e63946;
+            text-decoration: none;
+        }
+        
+        .register-btn {
+            width: 100%;
+            background: #e63946;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .register-btn:hover {
+            background: #c1121f;
+        }
+        
+        .login-link {
+            text-align: center;
+            margin-top: 25px;
+            color: #666;
+        }
+        
+        .login-link a {
+            color: #e63946;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        /* مزايا البائع */
+        .seller-benefits {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .benefits-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #1a1a2e;
+            text-align: center;
+        }
+        
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .benefit-item:last-child {
+            border-bottom: none;
+        }
+        
+        .benefit-icon {
+            width: 50px;
+            height: 50px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #e63946;
+        }
+        
+        .benefit-text h4 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .benefit-text p {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .copart-footer-logo {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            text-align: center;
+        }
+        
+        .copart-footer-logo img {
+            max-width: 150px;
+        }
+        
+        .copart-footer-logo p {
+            font-size: 12px;
+            color: #888;
+            margin-top: 10px;
+        }
+        
+        /* تذييل الصفحة */
+        footer {
+            background: #1a1a2e;
+            color: white;
+            padding: 40px 0 20px;
+            margin-top: 50px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+        
+        .footer-section a {
+            display: block;
+            color: #ccc;
+            text-decoration: none;
+            margin: 8px 0;
+            transition: color 0.3s;
+        }
+        
+        .footer-section a:hover {
+            color: #e63946;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+        }
+        
+        .footer-bottom a {
+            color: #e63946;
+            text-decoration: none;
+        }
+        
+        /* ريسponsive */
+        @media (max-width: 992px) {
+            .register-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .seller-benefits {
+                position: static;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .register-header h1 {
+                font-size: 28px;
+            }
+            
+            .register-form-container {
+                padding: 25px;
+            }
+            
+            .progress-steps {
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+            
+            .progress-steps::before {
+                display: none;
+            }
+            
+            .step {
+                flex: none;
+                width: calc(33% - 10px);
+            }
+        }
+        
+        /* رسائل التنبيه */
+        .alert {
+            padding: 12px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- شريط التنقل -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <h2>🚗 CarBid</h2>
+                <span class="badge">المزادات الحية</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">الرئيسية</a>
+                <a href="categories.html">المزادات</a>
+                <a href="login.html">تسجيل دخول</a>
+                <a href="help.html">مركز المساعدة</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- صفحة تسجيل البائع -->
+    <div class="register-seller-page">
+        <!-- رأس الصفحة -->
+        <div class="register-header">
+            <div class="container">
+                <div class="copart-badge">
+                    <i class="fas fa-bolt"></i> المزاد السريع | مدعوم من CarBid
+                </div>
+                <h1>تسجيل البائع</h1>
+                <p>حول مركباتك إلى نقود بسرعة مع سوقنا السريع</p>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="register-content">
+                <!-- نموذج التسجيل -->
+                <div class="register-form-container">
+                    <!-- مراحل التسجيل -->
+                    <div class="progress-steps">
+                        <div class="step active">
+                            <div class="step-circle">1</div>
+                            <div class="step-label">إنشاء حساب</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-circle">2</div>
+                            <div class="step-label">معلومات الاتصال</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-circle">3</div>
+                            <div class="step-label">إعداد الدفع</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-circle">4</div>
+                            <div class="step-label">تحقق من الهوية</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-circle">5</div>
+                            <div class="step-label">اكتمل</div>
+                        </div>
+                    </div>
+
+                    <div id="alertMessage" class="alert"></div>
+
+                    <!-- نموذج الخطوة 1 -->
+                    <form id="registerForm" onsubmit="return false;">
+                        <h2 class="form-title">إنشاء حساب البائع</h2>
+                        <p class="form-subtitle">أدخل بياناتك لبدء بيع سياراتك</p>
+
+                        <div class="form-group">
+                            <label>البريد الإلكتروني <span class="required">*</span></label>
+                            <input type="email" id="sellerEmail" placeholder="أدخل بريدك الإلكتروني" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>كلمة المرور <span class="required">*</span></label>
+                            <input type="password" id="sellerPassword" placeholder="أنشئ كلمة مرور" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>تأكيد كلمة المرور <span class="required">*</span></label>
+                            <input type="password" id="confirmPassword" placeholder="أعد إدخال كلمة المرور" required>
+                        </div>
+
+                        <div class="terms-checkbox">
+                            <input type="checkbox" id="termsCheckbox" required>
+                            <label>بالمتابعة، فإنك توافق على <a href="terms.html">شروط الخدمة</a> و <a href="privacy.html">سياسة الخصوصية</a> الخاصة بشركة CarBid, Inc</label>
+                        </div>
+
+                        <button type="submit" class="register-btn" onclick="registerSeller()">
+                            إنشاء حساب البائع <i class="fas fa-arrow-left"></i>
+                        </button>
+
+                        <div class="login-link">
+                            هل لديك حساب بالفعل؟ <a href="login.html">تسجيل الدخول</a>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- مزايا البائع -->
+                <div class="seller-benefits">
+                    <h3 class="benefits-title">لماذا اخترت CarBid؟</h3>
+                    
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="benefit-text">
+                            <h4>شبكة المشترين الضخمة</h4>
+                            <p>تواصل مع المشترين المؤهلين في جميع أنحاء البلاد</p>
+                        </div>
+                    </div>
+
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="benefit-text">
+                            <h4>عملية المزاد لمدة 7 أيام</h4>
+                            <p>احصل على عروض تنافسية خلال فترة مزاد مدتها 7 أيام</p>
+                        </div>
+                    </div>
+
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="benefit-text">
+                            <h4>المعاملات الآمنة</h4>
+                            <p>المشترون المدققون والمدفوعات المحمية</p>
+                        </div>
+                    </div>
+
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                        <div class="benefit-text">
+                            <h4>الفئات المتعددة</h4>
+                            <p>بيع أي مركبة أو معدات بسهولة</p>
+                        </div>
+                    </div>
+
+                    <div class="copart-footer-logo">
+                        <div class="logo" style="justify-content: center;">
+                            <h2 style="color: #e63946;">🚗 CarBid</h2>
+                        </div>
+                        <p>مدعوم من CarBid</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- تذييل الصفحة -->
+    <!-- <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>🚗 CarBid</h3>
+                    <p>منصة المزادات السريعة - مدعوم من CarBid</p>
+                </div>
+                <div class="footer-section">
+                    <h4>روابط سريعة</h4>
+                    <a href="index.html">الرئيسية</a>
+                    <a href="categories.html">المزادات</a>
+                    <a href="help.html">مركز المساعدة</a>
+                </div>
+                <div class="footer-section">
+                    <h4>قانوني</h4>
+                    <a href="terms.html">شروط الخدمة</a>
+                    <a href="privacy.html">سياسة الخصوصية</a>
+                </div>
+            </div>
+            
+        </div>
+    </footer> -->
+
+    <script>
+        function registerSeller() {
+            const email = document.getElementById('sellerEmail').value;
+            const password = document.getElementById('sellerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const termsChecked = document.getElementById('termsCheckbox').checked;
+            const alertDiv = document.getElementById('alertMessage');
+            
+            // التحقق من صحة المدخلات
+            if (!email || !password || !confirmPassword) {
+                alertDiv.className = 'alert error';
+                alertDiv.innerHTML = '⚠️ الرجاء ملء جميع الحقول المطلوبة';
+                setTimeout(() => {
+                    alertDiv.className = 'alert';
+                }, 3000);
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                alertDiv.className = 'alert error';
+                alertDiv.innerHTML = '⚠️ كلمة المرور غير متطابقة';
+                setTimeout(() => {
+                    alertDiv.className = 'alert';
+                }, 3000);
+                return;
+            }
+            
+            if (password.length < 6) {
+                alertDiv.className = 'alert error';
+                alertDiv.innerHTML = '⚠️ كلمة المرور يجب أن تكون 6 أحرف على الأقل';
+                setTimeout(() => {
+                    alertDiv.className = 'alert';
+                }, 3000);
+                return;
+            }
+            
+            if (!termsChecked) {
+                alertDiv.className = 'alert error';
+                alertDiv.innerHTML = '⚠️ الرجاء الموافقة على شروط الخدمة';
+                setTimeout(() => {
+                    alertDiv.className = 'alert';
+                }, 3000);
+                return;
+            }
+            
+            // التحقق إذا كان البريد موجود مسبقاً
+            let users = JSON.parse(localStorage.getItem('users')) || [];
+            if (users.find(u => u.email === email)) {
+                alertDiv.className = 'alert error';
+                alertDiv.innerHTML = '⚠️ هذا البريد الإلكتروني مسجل بالفعل';
+                setTimeout(() => {
+                    alertDiv.className = 'alert';
+                }, 3000);
+                return;
+            }
+            
+            // إنشاء حساب البائع
+            const newSeller = {
+                id: Date.now(),
+                name: email.split('@')[0],
+                email: email,
+                password: password,
+                isAdmin: false,
+                isSeller: true,
+                walletBalance: 0,
+                createdAt: new Date().toISOString(),
+                sellerInfo: {
+                    companyName: '',
+                    phone: '',
+                    address: '',
+                    verified: false
+                }
+            };
+            
+            users.push(newSeller);
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            // تسجيل الدخول تلقائياً
+            localStorage.setItem('currentUser', JSON.stringify(newSeller));
+            
+            // رسالة نجاح
+            alertDiv.className = 'alert success';
+            alertDiv.innerHTML = '✅ تم إنشاء حساب البائع بنجاح! جاري تحويلك إلى لوحة التحكم...';
+            
+            setTimeout(() => {
+                window.location.href = 'seller-dashboard.html';
+            }, 2000);
+        }
+        
+        // التحقق من صحة البريد الإلكتروني
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+        
+        // إضافة مستمع للأحداث للتحقق الفوري
+        document.getElementById('sellerEmail')?.addEventListener('input', function() {
+            const email = this.value;
+            const alertDiv = document.getElementById('alertMessage');
+            if (email && !validateEmail(email)) {
+                alertDiv.className = 'alert error';
+                alertDiv.innerHTML = '⚠️ الرجاء إدخال بريد إلكتروني صحيح';
+                setTimeout(() => {
+                    if (alertDiv.className === 'alert error') {
+                        alertDiv.className = 'alert';
+                    }
+                }, 2000);
+            }
+        });
+    </script>
+</body>
+</html>
