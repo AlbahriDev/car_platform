@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>المزادات المنتهية - CarBid</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Cairo", sans-serif;
+            background: radial-gradient(circle at 10% 20%, #070b1f, #03040c);
+            min-height: 100vh;
+            color: #eef5ff;
+            overflow-x: hidden;
+        }
+
+        .dynamic-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -2;
+            overflow: hidden;
+        }
+
+        .gradient-sphere {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.15), transparent 70%);
+            width: 60vw;
+            height: 60vw;
+            top: -10vw;
+            left: -10vw;
+            animation: floatSphere 15s infinite alternate ease-in-out;
+        }
+
+        .gradient-sphere.second {
+            background: radial-gradient(circle, rgba(255, 0, 255, 0.1), transparent 70%);
+            right: -20vw;
+            top: 50vh;
+            width: 50vw;
+            height: 50vw;
+            animation-delay: -5s;
+        }
+
+        @keyframes floatSphere {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 0.4;
+            }
+
+            100% {
+                transform: translate(8%, 8%) scale(1.2);
+                opacity: 0.8;
+            }
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .page-header {
+            text-align: center;
+            padding: 60px 0 40px;
+        }
+
+        .page-header h1 {
+            font-size: 48px;
+            font-weight: 900;
+            background: linear-gradient(135deg, cyan, magenta);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .page-header p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 18px;
+        }
+
+        .ended-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+        }
+
+        .ended-card {
+            background: rgba(8, 12, 28, 0.6);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ended-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(255, 0, 255, 0.4);
+            box-shadow: 0 15px 30px rgba(255, 0, 255, 0.15),
+                inset 0 0 20px rgba(255, 0, 255, 0.05);
+        }
+
+        .card-img-wrapper {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .ended-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .ended-card:hover img {
+            transform: scale(1.1);
+        }
+
+        .sold-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sold-stamp {
+            border: 3px solid #ff4444;
+            color: #ff4444;
+            font-size: 24px;
+            font-weight: 900;
+            padding: 5px 20px;
+            border-radius: 10px;
+            transform: rotate(-15deg);
+            text-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
+            box-shadow: 0 0 15px rgba(255, 68, 68, 0.3) inset;
+            letter-spacing: 2px;
+        }
+
+        .card-content {
+            padding: 20px;
+        }
+
+        .card-content h3 {
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        .final-price-box {
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .final-price-label {
+            font-size: 12px;
+            color: cyan;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .final-price-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: white;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        .winner-badge {
+            color: #ffd700;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 10px;
+            background: rgba(255, 215, 0, 0.1);
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px;
+            padding: 12px 24px;
+            background: rgba(0, 255, 255, 0.1);
+            border-radius: 30px;
+            text-decoration: none;
+            color: cyan;
+            border: 1px solid transparent;
+            transition: all 0.3s;
+            position: relative;
+            z-index: 100;
+        }
+
+        .back-btn:hover {
+            background: rgba(0, 255, 255, 0.2);
+            border-color: cyan;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            background: rgba(8, 12, 28, 0.5);
+            border-radius: 20px;
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+        }
+
+        .empty-state i {
+            font-size: 60px;
+            color: rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dynamic-bg">
+        <div class="gradient-sphere"></div>
+        <div class="gradient-sphere second"></div>
+    </div>
+
+    <a href="../index.html" class="back-btn"><i class="fas fa-arrow-right"></i> العودة للرئيسية</a>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>🏆 المزادات المنتهية</h1>
+            <p>اكتشف أسعار البيع النهائية للسيارات التي انتهت مزايدتها</p>
+        </div>
+        <div id="endedGrid" class="ended-grid"></div>
+    </div>
+
+    <script>
+        function loadEndedAuctions() {
+            let auctions = JSON.parse(localStorage.getItem('auctionsDatabase')) || [];
+
+            let ended = auctions.filter(a => a.status === 'ended');
+
+            // If there are no ended cars at all, let's inject some dummy ones just to show the UI
+            if (ended.length === 0) {
+                ended = [
+                    { id: 101, brand: "أودي", name: "R8", currentBid: 450000, imageUrl: "https://placehold.co/600x400/111424/00ffff?text=Audi+R8" },
+                    { id: 102, brand: "بورش", name: "911", currentBid: 580000, imageUrl: "https://placehold.co/600x400/111424/ff00ff?text=Porsche+911" },
+                    { id: 103, brand: "لكزس", name: "LX600", currentBid: 520000, imageUrl: "https://placehold.co/600x400/111424/00ffff?text=Lexus+LX600" },
+                    { id: 104, brand: "نيسان", name: "باترول", currentBid: 280000, imageUrl: "https://placehold.co/600x400/111424/ff00ff?text=Nissan+Patrol" }
+                ];
+            }
+
+            const grid = document.getElementById('endedGrid');
+
+            if (ended.length > 0) {
+                grid.innerHTML = ended.map(a => `
+            <div class="ended-card">
+              <div class="card-img-wrapper">
+                <img src="${a.imageUrl}" alt="${a.brand} ${a.name}">
+                <div class="sold-overlay">
+                  <div class="sold-stamp">مُباعة</div>
+                </div>
+              </div>
+              <div class="card-content">
+                <h3>${a.brand} ${a.name}</h3>
+                <div class="final-price-box">
+                  <div class="final-price-label">السعر النهائي للبيع</div>
+                  <div class="final-price-value">${a.currentBid.toLocaleString()} ر.س</div>
+                </div>
+                <div class="winner-badge">
+                  <i class="fas fa-trophy"></i> بيعت للمزايد صاحب أعلى عرض
+                </div>
+              </div>
+            </div>
+          `).join('');
+            } else {
+                grid.innerHTML = `
+            <div class="empty-state" style="grid-column: 1 / -1;">
+              <i class="fas fa-box-open"></i>
+              <h3>لا توجد مزادات منتهية حالياً</h3>
+              <p>كل المزادات نشطة حالياً، عد لاحقاً لمشاهدة النتائج.</p>
+            </div>
+          `;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadEndedAuctions);
+    </script>
+</body>
+
+</html>

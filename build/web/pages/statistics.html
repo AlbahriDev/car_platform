@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التقارير والإحصائيات - CarBid</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Cairo', sans-serif; background: #f0f2f5; }
+        
+        /* شريط التنقل */
+        .navbar { background: white; padding: 15px 5%; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; position: fixed; top: 0; width: 100%; z-index: 1000; }
+        .logo h2 { color: #e63946; }
+        .nav-links a { margin-right: 20px; text-decoration: none; color: #333; transition: color 0.3s; }
+        .nav-links a:hover { color: #e63946; }
+        
+        /* الحاوية الرئيسية */
+        .container { max-width: 1300px; margin: 100px auto 50px; padding: 20px; }
+        
+        /* عنوان الصفحة */
+        .page-header { margin-bottom: 30px; }
+        .page-header h2 { color: #e63946; font-size: 28px; display: flex; align-items: center; gap: 10px; }
+        .page-header p { color: #666; margin-top: 5px; }
+        
+        /* شبكة الإحصائيات */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 25px; margin-bottom: 40px; }
+        .stat-card { background: white; padding: 25px 20px; border-radius: 20px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+        .stat-card i { font-size: 40px; color: #e63946; margin-bottom: 15px; }
+        .stat-card h3 { color: #555; font-size: 16px; margin-bottom: 10px; font-weight: 600; }
+        .stat-card .number { font-size: 36px; font-weight: bold; color: #e63946; margin-bottom: 5px; }
+        .stat-card .sub { font-size: 13px; color: #888; }
+        
+        /* حاويات الرسوم البيانية */
+        .charts-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 25px; margin-bottom: 30px; }
+        .chart-container { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        .chart-container h3 { color: #333; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #e63946; display: inline-block; }
+        canvas { max-height: 320px; width: 100% !important; }
+        
+        /* جدول المبيعات التفصيلي */
+        .details-table { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); margin-top: 20px; }
+        .details-table h3 { color: #333; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #e63946; display: inline-block; }
+        .details-table table { width: 100%; border-collapse: collapse; }
+        .details-table th, .details-table td { padding: 12px; text-align: right; border-bottom: 1px solid #eee; }
+        .details-table th { background: #f8f9fa; font-weight: 600; color: #333; }
+        .details-table tr:hover { background: #f9f9f9; }
+        
+        /* تذييل */
+        .footer { text-align: center; padding: 20px; color: #888; font-size: 14px; border-top: 1px solid #ddd; margin-top: 40px; }
+        
+        @media (max-width: 768px) {
+            .container { margin-top: 80px; padding: 15px; }
+            .stats-grid { gap: 15px; }
+            .stat-card { padding: 15px; }
+            .stat-card .number { font-size: 28px; }
+            .charts-row { grid-template-columns: 1fr; }
+            .nav-links a { margin-right: 10px; font-size: 14px; }
+        }
+        
+        /* تأثير التحميل */
+        .loading { text-align: center; padding: 50px; color: #e63946; }
+        
+        /* أزرار التصدير */
+        .export-btn { background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-family: 'Cairo', sans-serif; margin-right: 15px; transition: background 0.3s; }
+        .export-btn:hover { background: #218838; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo"><h2>🚗 CarBid</h2></div>
+        <div class="nav-links">
+            <a href="../index.html"><i class="fas fa-home"></i> الرئيسية</a>
+            <a href="categories.html"><i class="fas fa-gavel"></i> المزادات</a>
+            <a href="profile.html"><i class="fas fa-user"></i> حسابي</a>
+            <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> تسجيل خروج</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h2><i class="fas fa-chart-line"></i> التقارير والإحصائيات</h2>
+            <p>نظرة شاملة على أداء المنصة والمزادات</p>
+        </div>
+        
+        <!-- بطاقات الإحصائيات -->
+        <div class="stats-grid" id="statsGrid"></div>
+        
+        <!-- الرسوم البيانية -->
+        <div class="charts-row">
+            <div class="chart-container">
+                <h3><i class="fas fa-chart-line"></i> المبيعات اليومية (آخر 7 أيام)</h3>
+                <canvas id="salesChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3><i class="fas fa-chart-bar"></i> توزيع السيارات حسب الماركة</h3>
+                <canvas id="carsChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="charts-row">
+            <div class="chart-container">
+                <h3><i class="fas fa-chart-pie"></i> حالة المزادات</h3>
+                <canvas id="auctionStatusChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3><i class="fas fa-chart-line"></i> نمو المستخدمين (آخر 30 يوم)</h3>
+                <canvas id="usersGrowthChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- جدول تفصيلي للمبيعات -->
+        <div class="details-table">
+            <h3><i class="fas fa-list"></i> آخر عمليات البيع</h3>
+            <div style="overflow-x: auto;">
+                <table id="salesTable">
+                    <thead>
+                        <tr><th>التاريخ</th><th>السيارة</th><th>المشتري</th><th>سعر البيع</th><th>حالة الدفع</th></tr>
+                    </thead>
+                    <tbody id="salesTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>جميع الحقوق محفوظة © 2024 CarBid | منصة المزادات الإلكترونية</p>
+        </div>
+    </div>
+
+    <script>
+        let salesChart = null, carsChart = null, auctionStatusChart = null, usersGrowthChart = null;
+        
+        // الحصول على المستخدم الحالي
+        function getCurrentUser() { 
+            return JSON.parse(localStorage.getItem('currentUser')); 
+        }
+        
+        // التحقق من تسجيل الدخول
+        function checkAuth() {
+            const user = getCurrentUser();
+            if (!user) {
+                window.location.href = '../login.html';
+            }
+        }
+        
+        // تحميل جميع الإحصائيات
+        function loadStatistics() {
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const cars = JSON.parse(localStorage.getItem('cars')) || [];
+            const transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            
+            // حساب الإحصائيات
+            const totalUsers = users.length;
+            const totalAuctions = cars.length;
+            const activeAuctions = cars.filter(c => c.status === 'active').length;
+            const soldCars = cars.filter(c => c.status === 'sold').length;
+            const pendingCars = cars.filter(c => c.status === 'pending').length;
+            const totalSales = transactions.filter(t => t.type === 'bid').reduce((sum, t) => sum + t.amount, 0);
+            
+            // عرض البطاقات
+            document.getElementById('statsGrid').innerHTML = `
+                <div class="stat-card" onclick="scrollToChart('salesChart')">
+                    <i class="fas fa-users"></i>
+                    <h3>👥 عدد المستخدمين</h3>
+                    <div class="number">${totalUsers}</div>
+                    <div class="sub">مستخدم نشط</div>
+                </div>
+                <div class="stat-card" onclick="scrollToChart('carsChart')">
+                    <i class="fas fa-gavel"></i>
+                    <h3>🔨 عدد المزادات</h3>
+                    <div class="number">${totalAuctions}</div>
+                    <div class="sub">${activeAuctions} مزاد نشط</div>
+                </div>
+                <div class="stat-card" onclick="scrollToChart('auctionStatusChart')">
+                    <i class="fas fa-car"></i>
+                    <h3>✅ السيارات المباعة</h3>
+                    <div class="number">${soldCars}</div>
+                    <div class="sub">من أصل ${totalAuctions} سيارة</div>
+                </div>
+                <div class="stat-card" onclick="scrollToChart('salesChart')">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>💰 إجمالي المبيعات</h3>
+                    <div class="number">${totalSales.toLocaleString()} <span style="font-size:16px;">ر.س</span></div>
+                    <div class="sub">إجمالي العائدات</div>
+                </div>
+            `;
+            
+            // رسم بياني للمبيعات اليومية
+            const last7Days = getLast7DaysSales(transactions);
+            if (salesChart) salesChart.destroy();
+            salesChart = new Chart(document.getElementById('salesChart'), {
+                type: 'line', 
+                data: { 
+                    labels: last7Days.labels, 
+                    datasets: [{ 
+                        label: 'المبيعات (ر.س)', 
+                        data: last7Days.data, 
+                        borderColor: '#e63946',
+                        backgroundColor: 'rgba(230, 57, 70, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#e63946',
+                        pointBorderColor: '#fff',
+                        pointRadius: 5
+                    }] 
+                },
+                options: { 
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        tooltip: { callbacks: { label: (ctx) => `${ctx.raw.toLocaleString()} ر.س` } }
+                    }
+                }
+            });
+            
+            // رسم بياني لتوزيع السيارات حسب الماركة
+            const brandStats = getBrandStats(cars);
+            if (carsChart) carsChart.destroy();
+            carsChart = new Chart(document.getElementById('carsChart'), {
+                type: 'bar', 
+                data: { 
+                    labels: brandStats.labels, 
+                    datasets: [{ 
+                        label: 'عدد السيارات', 
+                        data: brandStats.data, 
+                        backgroundColor: '#e63946',
+                        borderRadius: 10
+                    }] 
+                },
+                options: { 
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { position: 'top' }
+                    }
+                }
+            });
+            
+            // رسم بياني لحالة المزادات (دائري)
+            if (auctionStatusChart) auctionStatusChart.destroy();
+            auctionStatusChart = new Chart(document.getElementById('auctionStatusChart'), {
+                type: 'pie',
+                data: {
+                    labels: ['✅ مباعة', '🔥 نشطة', '⏳ قيد الانتظار'],
+                    datasets: [{
+                        data: [soldCars, activeAuctions, pendingCars],
+                        backgroundColor: ['#28a745', '#e63946', '#ffc107'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+            
+            // رسم بياني لنمو المستخدمين
+            const userGrowth = getUserGrowth(users);
+            if (usersGrowthChart) usersGrowthChart.destroy();
+            usersGrowthChart = new Chart(document.getElementById('usersGrowthChart'), {
+                type: 'line',
+                data: {
+                    labels: userGrowth.labels,
+                    datasets: [{
+                        label: 'مستخدمين جدد',
+                        data: userGrowth.data,
+                        borderColor: '#28a745',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true
+                }
+            });
+            
+            // تحميل جدول آخر المبيعات
+            loadRecentSales(transactions, cars, users);
+        }
+        
+        // الحصول على مبيعات آخر 7 أيام
+        function getLast7DaysSales(transactions) {
+            const labels = [];
+            const data = [];
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                date.setHours(0, 0, 0, 0);
+                const dateStr = date.toLocaleDateString('ar');
+                labels.push(dateStr);
+                const daySales = transactions.filter(t => {
+                    const tDate = new Date(t.date);
+                    tDate.setHours(0, 0, 0, 0);
+                    return tDate.getTime() === date.getTime() && t.type === 'bid';
+                }).reduce((sum, t) => sum + t.amount, 0);
+                data.push(daySales);
+            }
+            return { labels, data };
+        }
+        
+        // إحصائيات الماركات
+        function getBrandStats(cars) {
+            const brandCount = {};
+            cars.forEach(car => { 
+                brandCount[car.brand] = (brandCount[car.brand] || 0) + 1; 
+            });
+            const sorted = Object.entries(brandCount).sort((a, b) => b[1] - a[1]);
+            return { 
+                labels: sorted.map(item => item[0]), 
+                data: sorted.map(item => item[1]) 
+            };
+        }
+        
+        // نمو المستخدمين خلال 30 يوم
+        function getUserGrowth(users) {
+            const labels = [];
+            const data = [];
+            const now = new Date();
+            for (let i = 29; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(now.getDate() - i);
+                date.setHours(0, 0, 0, 0);
+                labels.push(`${date.getDate()}/${date.getMonth() + 1}`);
+                const count = users.filter(u => {
+                    const uDate = new Date(u.createdAt);
+                    uDate.setHours(0, 0, 0, 0);
+                    return uDate.getTime() === date.getTime();
+                }).length;
+                data.push(count);
+            }
+            return { labels, data };
+        }
+        
+        // تحميل آخر المبيعات
+        function loadRecentSales(transactions, cars, users) {
+            // الحصول على عمليات البيع (type = 'bid')
+            const sales = transactions.filter(t => t.type === 'bid').sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
+            
+            const tbody = document.getElementById('salesTableBody');
+            if (sales.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">لا توجد عمليات بيع حتى الآن</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = sales.map(sale => {
+                const car = cars.find(c => c.id === sale.carId);
+                const buyer = users.find(u => u.id === sale.userId);
+                return `
+                    <tr>
+                        <td>${new Date(sale.date).toLocaleDateString('ar')}</td>
+                        <td>${car ? `${car.brand} ${car.model} (${car.year})` : 'سيارة غير معروفة'}</td>
+                        <td>${buyer ? buyer.name : 'مستخدم غير معروف'}</td>
+                        <td style="color:#e63946; font-weight:bold;">${sale.amount.toLocaleString()} ر.س</td>
+                        <td style="color:#28a745;">✓ مكتمل</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        // التمرير إلى الرسم البياني
+        function scrollToChart(chartId) {
+            const element = document.getElementById(chartId);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                element.parentElement.style.boxShadow = '0 0 0 2px #e63946';
+                setTimeout(() => {
+                    element.parentElement.style.boxShadow = '';
+                }, 2000);
+            }
+        }
+        
+        // تسجيل الخروج
+        function logout() { 
+            localStorage.removeItem('currentUser'); 
+            window.location.href = '../login.html'; 
+        }
+        
+        // تحديث البيانات كل 30 ثانية
+        setInterval(() => {
+            loadStatistics();
+        }, 30000);
+        
+        // تهيئة الصفحة
+        checkAuth();
+        loadStatistics();
+    </script>
+</body>
+</html>

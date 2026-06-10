@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>تعديل السيارة - CarBid</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Cairo', sans-serif; background: #f0f2f5; }
+        .navbar { background: white; padding: 15px 5%; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        .logo h2 { color: #e63946; }
+        .nav-links a { margin-right: 20px; text-decoration: none; color: #333; }
+        .container { max-width: 800px; margin: 100px auto 50px; padding: 20px; }
+        .card { background: white; border-radius: 20px; padding: 30px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        h2 { color: #e63946; margin-bottom: 20px; text-align: center; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-family: 'Cairo', sans-serif; }
+        button { background: #e63946; color: white; border: none; padding: 15px 30px; border-radius: 10px; cursor: pointer; width: 100%; }
+        .error { color: red; margin-top: 5px; display: none; }
+        .success { color: green; text-align: center; margin-top: 10px; display: none; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo"><h2>🚗 CarBid</h2></div>
+        <div class="nav-links">
+            <a href="../index.html">🏠 الرئيسية</a>
+            <a href="my-cars.html">🚗 سياراتي</a>
+            <a href="profile.html">👤 حسابي</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <h2><i class="fas fa-edit"></i> تعديل السيارة</h2>
+            <form id="carForm">
+                <div class="form-group"><label>الماركة</label><input type="text" id="brand" required></div>
+                <div class="form-group"><label>الموديل</label><input type="text" id="model" required></div>
+                <div class="form-group"><label>السنة</label><input type="number" id="year" required></div>
+                <div class="form-group"><label>السعر</label><input type="number" id="price" required></div>
+                <div class="form-group"><label>الممشى (كم)</label><input type="number" id="mileage"></div>
+                <div class="form-group"><label>الوصف</label><textarea id="description"></textarea></div>
+                <button type="button" onclick="updateCar()">💾 حفظ التعديلات</button>
+                <div class="error" id="errorMsg"></div>
+                <div class="success" id="successMsg">تم تحديث السيارة بنجاح!</div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function getCarId() { return new URLSearchParams(window.location.search).get('id'); }
+        
+        function loadCar() {
+            const carId = parseInt(getCarId());
+            const cars = JSON.parse(localStorage.getItem('cars')) || [];
+            const car = cars.find(c => c.id === carId);
+            if (!car) { window.location.href = 'my-cars.html'; return; }
+            
+            document.getElementById('brand').value = car.brand;
+            document.getElementById('model').value = car.model;
+            document.getElementById('year').value = car.year;
+            document.getElementById('price').value = car.price;
+            document.getElementById('mileage').value = car.mileage || '';
+            document.getElementById('description').value = car.description || '';
+        }
+        
+        function updateCar() {
+            const carId = parseInt(getCarId());
+            let cars = JSON.parse(localStorage.getItem('cars')) || [];
+            const index = cars.findIndex(c => c.id === carId);
+            if (index === -1) return;
+            
+            cars[index] = { ...cars[index], brand: document.getElementById('brand').value, model: document.getElementById('model').value, year: parseInt(document.getElementById('year').value), price: parseInt(document.getElementById('price').value), mileage: parseInt(document.getElementById('mileage').value) || 0, description: document.getElementById('description').value };
+            
+            localStorage.setItem('cars', JSON.stringify(cars));
+            document.getElementById('successMsg').style.display = 'block';
+            setTimeout(() => window.location.href = 'my-cars.html', 1500);
+        }
+        
+        loadCar();
+    </script>
+</body>
+</html>

@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سيارات </title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Cairo', sans-serif; background: #f0f2f5; }
+        
+        /* ===== القائمة الجانبية الثابتة على اليمين ===== */
+        .sidebar {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 260px;
+            height: 100%;
+            background: #1a1a2e;
+            color: white;
+            padding: 20px 0;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar-header {
+            text-align: center;
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .sidebar-header h2 {
+            color: #e63946;
+            font-size: 24px;
+        }
+        
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            padding: 0 15px;
+        }
+        
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #ccc;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .sidebar-nav a:hover, .sidebar-nav a.active {
+            background: #e63946;
+            color: white;
+            transform: translateX(-5px);
+        }
+        
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 20px 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 30px;
+        }
+        
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #ff6b6b;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255,107,107,0.15);
+            color: #ff6b6b;
+        }
+        
+        /* المحتوى الرئيسي */
+        .main-content {
+            margin-right: 260px;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* شريط البحث والفلترة */
+        .controls-bar {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .search-section {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        
+        .search-box {
+            flex: 2;
+            position: relative;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 12px 45px 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #e63946;
+        }
+        
+        .search-box i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+        
+        .filter-section {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filter-select {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            background: white;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+        }
+        
+        .sort-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .sort-btn {
+            padding: 8px 15px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .sort-btn.active {
+            background: #e63946;
+            color: white;
+            border-color: #e63946;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        .action-btn.add {
+            background: #28a745;
+            color: white;
+        }
+        
+        .action-btn.add:hover {
+            background: #1e7e34;
+            transform: scale(1.02);
+        }
+        
+        .action-btn.refresh {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        /* البطاقات */
+        .cars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        
+        .car-card {
+            background: white;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .car-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+        
+        .car-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .car-info {
+            padding: 18px;
+        }
+        
+        .car-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .car-price {
+            color: #e63946;
+            font-size: 22px;
+            font-weight: bold;
+            margin: 8px 0;
+        }
+        
+        .car-details {
+            font-size: 13px;
+            color: #666;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 8px 0;
+        }
+        
+        .car-status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            margin: 8px 0;
+        }
+        
+        .status-pending { background: #ffc107; color: #333; }
+        .status-active { background: #28a745; color: white; }
+        .status-sold { background: #6c757d; color: white; }
+        .status-expired { background: #dc3545; color: white; }
+        .status-rejected { background: #6c757d; color: white; }
+        
+        .bids-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            font-size: 13px;
+        }
+        
+        .bids-count {
+            background: #f8f9fa;
+            padding: 4px 10px;
+            border-radius: 20px;
+            color: #e63946;
+            font-weight: bold;
+        }
+        
+        .countdown-timer {
+            background: #1a1a2e;
+            color: #ffc107;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            direction: ltr;
+        }
+        
+        .car-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .car-actions button, .car-actions a {
+            flex: 1;
+            padding: 8px;
+            border-radius: 10px;
+            text-decoration: none;
+            text-align: center;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        
+        .view-btn { background: #17a2b8; color: white; }
+        .view-btn:hover { background: #0f6674; }
+        .edit-btn { background: #ffc107; color: #333; }
+        .edit-btn:hover { background: #e0a800; }
+        .delete-btn { background: #dc3545; color: white; }
+        .delete-btn:hover { background: #bd2130; }
+        .pause-btn { background: #fd7e14; color: white; }
+        .pause-btn:hover { background: #e66a00; }
+        .resume-btn { background: #20c997; color: white; }
+        .resume-btn:hover { background: #1ba87e; }
+        
+        /* الترقيم (Pagination) */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 35px;
+            flex-wrap: wrap;
+        }
+        
+        .page-btn {
+            padding: 8px 14px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .page-btn.active {
+            background: #e63946;
+            color: white;
+            border-color: #e63946;
+        }
+        
+        .page-btn:hover:not(.active) {
+            background: #f0f0f0;
+        }
+        
+        /* النماذج */
+        .form-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: none;
+        }
+        
+        .form-container.show { display: block; }
+        
+        .form-title {
+            color: #e63946;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 24px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .form-group { margin-bottom: 15px; }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-family: 'Cairo', sans-serif;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #e63946;
+        }
+        
+        textarea { resize: vertical; height: 80px; }
+        
+        .image-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        
+        .image-input-group input { flex: 1; }
+        
+        .remove-img-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .add-image-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+        
+        .image-preview {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
+        .preview-img {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 2px solid #ddd;
+        }
+        
+        .submit-btn, .cancel-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        
+        .submit-btn { background: #e63946; color: white; }
+        .cancel-btn { background: #6c757d; color: white; }
+        
+        /* المودال */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            width: 90%;
+            max-width: 750px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .modal-header h3 { color: #e63946; font-size: 22px; }
+        .close-modal { background: none; border: none; font-size: 28px; cursor: pointer; color: #999; }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+        
+        .modal-buttons button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .save-modal { background: #e63946; color: white; }
+        .cancel-modal { background: #6c757d; color: white; }
+        
+        /* تأكيد الحذف */
+        .confirm-dialog-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .confirm-dialog {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        .confirm-dialog h4 { margin-bottom: 15px; color: #dc3545; }
+        .confirm-dialog p { margin-bottom: 20px; }
+        .confirm-buttons { display: flex; gap: 10px; }
+        .confirm-buttons button { flex: 1; padding: 10px; border-radius: 10px; border: none; cursor: pointer; }
+        .confirm-yes { background: #dc3545; color: white; }
+        .confirm-no { background: #6c757d; color: white; }
+        
+        .msg {
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+        .msg.success { background: #28a745; color: white; display: block; }
+        .msg.error { background: #dc3545; color: white; display: block; }
+        
+        .empty-msg {
+            text-align: center;
+            padding: 50px;
+            background: white;
+            border-radius: 15px;
+            color: #999;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar { width: 70px; }
+            .sidebar-header h2, .sidebar-nav a span, .logout-btn span { display: none; }
+            .sidebar-nav a { justify-content: center; padding: 12px; }
+            .sidebar-nav a i { margin: 0; font-size: 20px; }
+            .main-content { margin-right: 70px; }
+            .cars-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header"><h2><i class="fas fa-gavel"></i> CarBid</h2></div>
+        <div class="sidebar-nav">
+            <a href="../index.html"><i class="fas fa-home"></i> <span>الرئيسية</span></a>
+            <a href="categories.html"><i class="fas fa-gavel"></i> <span>المزادات</span></a>
+            <a href="search.html"><i class="fas fa-search"></i> <span>البحث</span></a>
+            <a href="favorites.html"><i class="fas fa-heart"></i> <span>المفضلة</span></a>
+            <a href="my-bids.html"><i class="fas fa-money-bill"></i> <span>عروضي</span></a>
+            <a href="wallet.html"><i class="fas fa-wallet"></i> <span>المحفظة</span></a>
+            <a href="notifications.html"><i class="fas fa-bell"></i> <span>الإشعارات</span></a>
+            <a href="messages.html"><i class="fas fa-envelope"></i> <span>الرسائل</span></a>
+            <a href="profile.html"><i class="fas fa-user"></i> <span>حسابي</span></a>
+            <a href="my-cars.html" class="active"><i class="fas fa-car"></i> <span>سياراتي</span></a>
+        </div>
+        <div class="sidebar-footer">
+            <div class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span>تسجيل خروج</span></div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="container">
+            <div id="successMsg" class="msg success" style="display:none;"></div>
+            <div id="errorMsg" class="msg error" style="display:none;"></div>
+
+            <!-- شريط التحكم -->
+            <div class="controls-bar">
+                <div class="search-section">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="🔍 بحث عن سيارة..." onkeyup="filterCars()">
+                    </div>
+                </div>
+                <div class="filter-section">
+                    <select id="statusFilter" class="filter-select" onchange="filterCars()">
+                        <option value="all">📋 جميع الحالات</option>
+                        <option value="active">🔥 مزاد نشط</option>
+                        <option value="pending">⏳ قيد الانتظار</option>
+                        <option value="sold">✅ تم البيع</option>
+                        <option value="expired">❌ منتهي</option>
+                        <option value="rejected">🚫 مرفوض</option>
+                    </select>
+                    
+                    <div class="sort-buttons">
+                        <button class="sort-btn" data-sort="newest" onclick="setSort('newest')">🆕 الأحدث</button>
+                        <button class="sort-btn" data-sort="priceHigh" onclick="setSort('priceHigh')">💰 الأعلى سعراً</button>
+                        <button class="sort-btn" data-sort="priceLow" onclick="setSort('priceLow')">💰 الأقل سعراً</button>
+                        <button class="sort-btn" data-sort="mileage" onclick="setSort('mileage')">📊 الأقل ممشى</button>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="action-btn add" onclick="showAddForm()"><i class="fas fa-plus-circle"></i> ➕ إضافة سيارة</button>
+                        <button class="action-btn refresh" onclick="loadMyCars()"><i class="fas fa-sync-alt"></i> 🔄 تحديث</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- نموذج الإضافة -->
+            <div id="addForm" class="form-container">
+                <h2 class="form-title"><i class="fas fa-car"></i> إضافة سيارة جديدة</h2>
+                <div class="form-grid">
+                    <div class="form-group"><label>الماركة <span style="color:red">*</span></label>
+                        <select id="brand">
+                            <option value="">اختر الماركة</option>
+                            <option>تويوتا</option><option>هوندا</option><option>مرسيدس</option>
+                            <option>BMW</option><option>أودي</option><option>هيونداي</option>
+                            <option>نيسان</option><option>فورد</option><option>شيفروليه</option><option>كيا</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>الموديل <span style="color:red">*</span></label><input type="text" id="model" placeholder="مثال: كامري"></div>
+                    <div class="form-group"><label>السنة <span style="color:red">*</span></label>
+                        <select id="year"><option value="">اختر السنة</option></select>
+                    </div>
+                    <div class="form-group"><label>السعر المبدئي <span style="color:red">*</span></label><input type="number" id="price" placeholder="10000"></div>
+                    <div class="form-group"><label>الممشى (كم)</label><input type="number" id="mileage" value="0"></div>
+                    <div class="form-group"><label>نوع الوقود</label>
+                        <select id="fuelType"><option>بنزين</option><option>ديزل</option><option>كهرباء</option><option>هايبرد</option></select>
+                    </div>
+                    <div class="form-group"><label>ناقل الحركة</label>
+                        <select id="transmission"><option>أوتوماتيك</option><option>يدوي</option></select>
+                    </div>
+                    <div class="form-group"><label>الوصف</label><textarea id="description" placeholder="وصف السيارة..."></textarea></div>
+                </div>
+                <div class="form-group">
+                    <label>📸 روابط الصور</label>
+                    <div id="imagesContainer"><div class="image-input-group"><input type="url" class="imageUrl" placeholder="https://example.com/image.jpg"><button type="button" class="remove-img-btn" onclick="removeImageField(this)">✖</button></div></div>
+                    <button type="button" class="add-image-btn" onclick="addImageField()"><i class="fas fa-plus"></i> إضافة رابط</button>
+                    <div id="imagePreview" class="image-preview"></div>
+                </div>
+                <button class="submit-btn" onclick="addCar()"><i class="fas fa-save"></i> حفظ السيارة</button>
+                <button class="cancel-btn" onclick="hideAddForm()"><i class="fas fa-times"></i> إلغاء</button>
+            </div>
+
+            <div id="carsGrid" class="cars-grid"></div>
+            <div id="pagination" class="pagination"></div>
+        </div>
+    </div>
+
+    <!-- مودال التعديل -->
+    <div id="editModal" class="modal"><div class="modal-content"><div class="modal-header"><h3><i class="fas fa-edit"></i> تعديل السيارة</h3><button class="close-modal" onclick="closeEditModal()">&times;</button></div><div id="editFormContent"></div><div class="modal-buttons"><button class="save-modal" onclick="saveEdit()">💾 حفظ</button><button class="cancel-modal" onclick="closeEditModal()">إلغاء</button></div></div></div>
+
+    <!-- تأكيد الحذف -->
+    <div id="confirmDialog" class="confirm-dialog-overlay"><div class="confirm-dialog"><h4>⚠️ تأكيد الحذف</h4><p>هل أنت متأكد من حذف هذه السيارة؟ لا يمكن التراجع.</p><div class="confirm-buttons"><button class="confirm-yes" id="confirmDeleteBtn">نعم، احذف</button><button class="confirm-no" onclick="closeConfirmDialog()">إلغاء</button></div></div></div>
+
+    <script>
+        let currentUser = null;
+        let allMyCars = [];
+        let currentSort = 'newest';
+        let currentPage = 1;
+        let itemsPerPage = 6;
+        let pendingDeleteId = null;
+        let countdownIntervals = [];
+
+        // تهيئة السنوات
+        function initYears() {
+            const yearSelect = document.getElementById('year');
+            const currentYear = new Date().getFullYear();
+            for (let y = currentYear + 1; y >= 1990; y--) {
+                yearSelect.innerHTML += `<option value="${y}">${y}</option>`;
+            }
+        }
+
+        function getCurrentUser() {
+            return JSON.parse(localStorage.getItem('currentUser'));
+        }
+
+        function showMessage(msg, type) {
+            const msgDiv = document.getElementById(`${type}Msg`);
+            msgDiv.textContent = msg;
+            msgDiv.style.display = 'block';
+            setTimeout(() => msgDiv.style.display = 'none', 3000);
+        }
+
+        // إضافة بيانات تجريبية مع حالات متنوعة
+        function addSampleData() {
+            const user = getCurrentUser();
+            if (!user) return;
+            const cars = JSON.parse(localStorage.getItem('cars')) || [];
+            const myCars = cars.filter(c => c.sellerId === user.id);
+            if (myCars.length === 0) {
+                const endTime = new Date();
+                const sampleCars = [
+                    { id: Date.now()+1, brand: "تويوتا", model: "كامري", year: 2022, price: 85000, mileage: 45000, fuelType: "بنزين", transmission: "أوتوماتيك", description: "بحالة ممتازة", images: ["https://cdn.pixabay.com/photo/2022/05/24/01/27/toyota-camry-7217208_640.jpg"], status: "active", bidsCount: 12, endTime: new Date(endTime.getTime() + 2*24*60*60*1000).toISOString() },
+                    { id: Date.now()+2, brand: "مرسيدس", model: "الفئة E", year: 2023, price: 180000, mileage: 12000, fuelType: "بنزين", transmission: "أوتوماتيك", description: "فخامة وراحة", images: ["https://cdn.pixabay.com/photo/2018/03/28/18/33/mercedes-benz-3270070_640.jpg"], status: "pending", bidsCount: 0, endTime: null },
+                    { id: Date.now()+3, brand: "BMW", model: "X5", year: 2023, price: 220000, mileage: 8000, fuelType: "بنزين", transmission: "أوتوماتيك", description: "دفع رباعي", images: ["https://cdn.pixabay.com/photo/2018/02/21/19/11/bmw-x5-3170494_640.jpg"], status: "sold", bidsCount: 8, endTime: new Date(endTime.getTime() - 5*24*60*60*1000).toISOString() },
+                    { id: Date.now()+4, brand: "هيونداي", model: "النترا", year: 2022, price: 48000, mileage: 35000, fuelType: "بنزين", transmission: "أوتوماتيك", description: "اقتصادية", images: ["https://cdn.pixabay.com/photo/2021/05/20/15/54/hyundai-elantra-6268285_640.jpg"], status: "expired", bidsCount: 3, endTime: new Date(endTime.getTime() - 2*24*60*60*1000).toISOString() },
+                    { id: Date.now()+5, brand: "أودي", model: "A6", year: 2024, price: 210000, mileage: 5000, fuelType: "بنزين", transmission: "أوتوماتيك", description: "فاخرة", images: ["https://cdn.pixabay.com/photo/2017/03/27/14/54/audi-2178703_640.jpg"], status: "rejected", bidsCount: 0, endTime: null, rejectionReason: "الصور غير واضحة" }
+                ];
+                sampleCars.forEach(c => { c.sellerId = user.id; c.sellerName = user.name; c.sellerPhone = user.phone; c.createdAt = new Date().toISOString(); c.currentBid = c.price; });
+                cars.push(...sampleCars);
+                localStorage.setItem('cars', JSON.stringify(cars));
+            }
+        }
+
+        function loadMyCars() {
+            currentUser = getCurrentUser();
+            if (!currentUser) { window.location.href = '../login.html'; return; }
+            const cars = JSON.parse(localStorage.getItem('cars')) || [];
+            allMyCars = cars.filter(c => c.sellerId === currentUser.id).map(car => ({
+                ...car,
+                bidsCount: car.bidsCount || Math.floor(Math.random() * 20),
+                endTime: car.endTime || new Date(Date.now() + 7*24*60*60*1000).toISOString()
+            }));
+            filterCars();
+        }
+
+        function filterCars() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            let filtered = [...allMyCars];
+            if (searchTerm) filtered = filtered.filter(c => `${c.brand} ${c.model} ${c.year}`.toLowerCase().includes(searchTerm));
+            if (statusFilter !== 'all') filtered = filtered.filter(c => c.status === statusFilter);
+            // الترتيب
+            if (currentSort === 'newest') filtered.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+            else if (currentSort === 'priceHigh') filtered.sort((a,b) => b.price - a.price);
+            else if (currentSort === 'priceLow') filtered.sort((a,b) => a.price - b.price);
+            else if (currentSort === 'mileage') filtered.sort((a,b) => (a.mileage||0) - (b.mileage||0));
+            renderPagination(filtered);
+        }
+
+        function renderPagination(items) {
+            const totalPages = Math.ceil(items.length / itemsPerPage);
+            if (currentPage > totalPages) currentPage = totalPages || 1;
+            const start = (currentPage-1) * itemsPerPage;
+            const paginated = items.slice(start, start + itemsPerPage);
+            renderCars(paginated);
+            // أزرار الصفحات
+            const paginationDiv = document.getElementById('pagination');
+            if (totalPages <= 1) { paginationDiv.innerHTML = ''; return; }
+            let html = `<button class="page-btn" onclick="changePage(${currentPage-1})" ${currentPage===1 ? 'disabled style="opacity:0.5"' : ''}>« السابق</button>`;
+            for (let i=1; i<=totalPages; i++) html += `<button class="page-btn ${i===currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+            html += `<button class="page-btn" onclick="changePage(${currentPage+1})" ${currentPage===totalPages ? 'disabled style="opacity:0.5"' : ''}>التالي »</button>`;
+            paginationDiv.innerHTML = html;
+        }
+
+        function changePage(page) { currentPage = page; filterCars(); }
+
+        function setSort(sort) { currentSort = sort; currentPage = 1; filterCars(); document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active')); document.querySelector(`.sort-btn[data-sort="${sort}"]`).classList.add('active'); }
+
+        function getStatusText(status) {
+            const texts = { pending: '⏳ قيد الانتظار', active: '🔥 مزاد نشط', sold: '✅ تم البيع', expired: '❌ منتهي / غير مباع', rejected: '🚫 مرفوض' };
+            return texts[status] || status;
+        }
+        function getStatusClass(status) {
+            const classes = { pending: 'pending', active: 'active', sold: 'sold', expired: 'expired', rejected: 'rejected' };
+            return classes[status] || 'pending';
+        }
+
+        function updateCountdowns() {
+            document.querySelectorAll('.countdown-timer[data-endtime]').forEach(el => {
+                const endTime = new Date(el.dataset.endtime);
+                const now = new Date();
+                const diff = endTime - now;
+                if (diff <= 0) { el.innerHTML = '⏰ انتهى'; return; }
+                const days = Math.floor(diff / (1000*60*60*24));
+                const hours = Math.floor((diff % (86400000)) / 3600000);
+                const minutes = Math.floor((diff % 3600000) / 60000);
+                let text = '';
+                if (days > 0) text = `${days} ي`;
+                if (hours > 0 || days > 0) text += ` ${hours} س`;
+                if (minutes > 0 && days === 0) text += ` ${minutes} د`;
+                el.innerHTML = `⏰ ينتهي: ${text.trim() || 'أقل من دقيقة'}`;
+            });
+        }
+        setInterval(updateCountdowns, 1000);
+
+        function pauseCar(carId) {
+            let cars = JSON.parse(localStorage.getItem('cars')) || [];
+            const index = cars.findIndex(c => c.id === carId);
+            if (index !== -1 && cars[index].status === 'active') {
+                cars[index].status = 'pending';
+                localStorage.setItem('cars', JSON.stringify(cars));
+                loadMyCars();
+                showMessage('⏸️ تم إيقاف المزاد مؤقتاً', 'success');
+            }
+        }
+
+        function resumeCar(carId) {
+            let cars = JSON.parse(localStorage.getItem('cars')) || [];
+            const index = cars.findIndex(c => c.id === carId);
+            if (index !== -1 && cars[index].status === 'pending') {
+                cars[index].status = 'active';
+                cars[index].endTime = new Date(Date.now() + 7*24*60*60*1000).toISOString();
+                localStorage.setItem('cars', JSON.stringify(cars));
+                loadMyCars();
+                showMessage('▶️ تم تفعيل المزاد', 'success');
+            }
+        }
+
+        function openConfirmDialog(carId) { pendingDeleteId = carId; document.getElementById('confirmDialog').style.display = 'flex'; }
+        function closeConfirmDialog() { pendingDeleteId = null; document.getElementById('confirmDialog').style.display = 'none'; }
+        function confirmDelete() { if (pendingDeleteId) deleteCar(pendingDeleteId); closeConfirmDialog(); }
+
+        function deleteCar(carId) {
+            let cars = JSON.parse(localStorage.getItem('cars')) || [];
+            cars = cars.filter(c => c.id !== carId);
+            localStorage.setItem('cars', JSON.stringify(cars));
+            loadMyCars();
+            showMessage('🗑️ تم حذف السيارة', 'success');
+        }
+
+        function renderCars(cars) {
+            const grid = document.getElementById('carsGrid');
+            if (cars.length === 0) { grid.innerHTML = `<div class="empty-msg"><i class="fas fa-car" style="font-size:60px;"></i><p>لا توجد سيارات</p><button onclick="showAddForm()" style="background:#e63946;color:white;border:none;padding:12px;border-radius:10px;margin-top:20px;">➕ أضف سيارة</button></div>`; return; }
+            grid.innerHTML = cars.map(car => `
+                <div class="car-card">
+                    <img src="${car.images?.[0] || 'https://cdn.pixabay.com/photo/2016/02/13/13/11/car-1197800_640.jpg'}" onerror="this.src='https://cdn.pixabay.com/photo/2016/02/13/13/11/car-1197800_640.jpg'">
+                    <div class="car-info">
+                        <div class="car-title">${car.brand} ${car.model} (${car.year})</div>
+                        <div class="car-price">${(car.currentBid || car.price).toLocaleString()} ر.س</div>
+                        <div class="car-details"><span><i class="fas fa-tachometer-alt"></i> ${(car.mileage||0).toLocaleString()} كم</span><span><i class="fas fa-gas-pump"></i> ${car.fuelType||'بنزين'}</span><span><i class="fas fa-cog"></i> ${car.transmission||'أوتوماتيك'}</span></div>
+                        <div class="bids-info"><span class="bids-count"><i class="fas fa-gavel"></i> ${car.bidsCount || 0} مزايدة</span>${car.status === 'active' && car.endTime ? `<span class="countdown-timer" data-endtime="${car.endTime}">⏰ جاري الحساب...</span>` : ''}</div>
+                        <span class="car-status status-${getStatusClass(car.status)}">${getStatusText(car.status)}${car.status === 'rejected' && car.rejectionReason ? `<br><small>${car.rejectionReason}</small>` : ''}</span>
+                        <div class="car-actions">
+                            <a href="car-details.html?id=${car.id}" class="view-btn"><i class="fas fa-eye"></i> عرض</a>
+                            <button onclick="openEditModal(${car.id})" class="edit-btn"><i class="fas fa-edit"></i> تعديل</button>
+                            ${car.status === 'active' ? `<button onclick="pauseCar(${car.id})" class="pause-btn"><i class="fas fa-pause"></i> إيقاف</button>` : (car.status === 'pending' ? `<button onclick="resumeCar(${car.id})" class="resume-btn"><i class="fas fa-play"></i> تشغيل</button>` : '')}
+                            <button onclick="openConfirmDialog(${car.id})" class="delete-btn"><i class="fas fa-trash"></i> حذف</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            updateCountdowns();
+        }
+
+        // دوال الإضافة والتعديل (مبسطة للاختصار مع الحفاظ على الوظائف الأساسية)
+        function showAddForm() { document.getElementById('addForm').classList.add('show'); document.getElementById('addForm').scrollIntoView({ behavior: 'smooth' }); }
+        function hideAddForm() { document.getElementById('addForm').classList.remove('show'); }
+        function addImageField() { const container = document.getElementById('imagesContainer'); const div = document.createElement('div'); div.className = 'image-input-group'; div.innerHTML = '<input type="url" class="imageUrl" placeholder="رابط الصورة"><button type="button" class="remove-img-btn" onclick="removeImageField(this)">✖</button>'; container.appendChild(div); updatePreview(); }
+        function removeImageField(btn) { btn.parentElement.remove(); updatePreview(); }
+        function updatePreview() { const urls = Array.from(document.querySelectorAll('#imagesContainer .imageUrl')).map(i=>i.value).filter(u=>u.trim()); const preview = document.getElementById('imagePreview'); if(urls.length===0) preview.innerHTML='<small>لا توجد صور</small>'; else preview.innerHTML = urls.map(u=>`<img src="${u}" class="preview-img" onerror="this.src='https://cdn.pixabay.com/photo/2016/02/13/13/11/car-1197800_640.jpg'">`).join(''); }
+        setInterval(updatePreview, 500);
+
+        function addCar() {
+            const user = getCurrentUser();
+            if(!user){ window.location.href='../login.html'; return; }
+            const brand=document.getElementById('brand').value, model=document.getElementById('model').value, year=document.getElementById('year').value, price=parseInt(document.getElementById('price').value);
+            if(!brand||!model||!year||!price){ showMessage('املأ الحقول المطلوبة','error'); return; }
+            const images = Array.from(document.querySelectorAll('#imagesContainer .imageUrl')).map(i=>i.value).filter(u=>u.trim());
+            if(images.length===0) images.push('https://cdn.pixabay.com/photo/2016/02/13/13/11/car-1197800_640.jpg');
+            const cars = JSON.parse(localStorage.getItem('cars')) || [];
+            const newCar = { id: Date.now(), brand, model, year: parseInt(year), price, currentBid: price, mileage: parseInt(document.getElementById('mileage').value)||0, fuelType: document.getElementById('fuelType').value, transmission: document.getElementById('transmission').value, description: document.getElementById('description').value, images, sellerId: user.id, sellerName: user.name, sellerPhone: user.phone, status: 'pending', bidsCount: 0, endTime: new Date(Date.now()+7*24*60*60*1000).toISOString(), createdAt: new Date().toISOString() };
+            cars.push(newCar);
+            localStorage.setItem('cars', JSON.stringify(cars));
+            hideAddForm(); loadMyCars(); showMessage('✅ تم الإضافة','success');
+        }
+
+        function openEditModal(id){
+            const cars = JSON.parse(localStorage.getItem('cars')) || [];
+            const car = cars.find(c=>c.id===id);
+            if(!car) return;
+            window.currentEditId = id;
+            const imagesHtml = (car.images||[]).map((img,i)=>`<div class="image-input-group"><input type="url" class="editImgUrl" value="${img.replace(/"/g,'&quot;')}"><button type="button" class="remove-img-btn" onclick="this.parentElement.remove();updateEditPreview()">✖</button></div>`).join('');
+            document.getElementById('editFormContent').innerHTML = `<div class="form-grid"><div class="form-group"><label>الماركة</label><input id="editBrand" value="${car.brand}"></div><div class="form-group"><label>الموديل</label><input id="editModel" value="${car.model}"></div><div class="form-group"><label>السنة</label><input id="editYear" value="${car.year}"></div><div class="form-group"><label>السعر</label><input id="editPrice" value="${car.price}"></div><div class="form-group"><label>الممشى</label><input id="editMileage" value="${car.mileage||0}"></div><div class="form-group"><label>نوع الوقود</label><select id="editFuelType"><option ${car.fuelType==='بنزين'?'selected':''}>بنزين</option><option ${car.fuelType==='ديزل'?'selected':''}>ديزل</option><option ${car.fuelType==='كهرباء'?'selected':''}>كهرباء</option><option ${car.fuelType==='هايبرد'?'selected':''}>هايبرد</option></select></div><div class="form-group"><label>ناقل الحركة</label><select id="editTransmission"><option ${car.transmission==='أوتوماتيك'?'selected':''}>أوتوماتيك</option><option ${car.transmission==='يدوي'?'selected':''}>يدوي</option></select></div><div class="form-group"><label>الوصف</label><textarea id="editDescription">${car.description||''}</textarea></div></div><div class="form-group"><label>صور</label><div id="editImagesContainer">${imagesHtml||'<div><input type="url" class="editImgUrl"></div>'}</div><button type="button" onclick="addEditImageField()">+ إضافة صورة</button><div id="editImagePreview"></div></div>`;
+            document.getElementById('editModal').style.display='flex';
+            updateEditPreview();
+        }
+        function addEditImageField(){ const c=document.getElementById('editImagesContainer'); const d=document.createElement('div'); d.className='image-input-group'; d.innerHTML='<input type="url" class="editImgUrl" placeholder="رابط"><button type="button" class="remove-img-btn" onclick="this.parentElement.remove();updateEditPreview()">✖</button>'; c.appendChild(d); updateEditPreview(); }
+        function updateEditPreview(){ const urls=Array.from(document.querySelectorAll('#editImagesContainer .editImgUrl')).map(i=>i.value).filter(u=>u); const p=document.getElementById('editImagePreview'); if(p) p.innerHTML=urls.length? urls.map(u=>`<img src="${u}" class="preview-img" onerror="this.src='https://cdn.pixabay.com/photo/2016/02/13/13/11/car-1197800_640.jpg'">`).join('') : '<small>لا توجد صور</small>'; }
+        function saveEdit(){
+            let cars = JSON.parse(localStorage.getItem('cars')) || [];
+            const idx = cars.findIndex(c=>c.id===window.currentEditId);
+            if(idx===-1) return;
+            const images = Array.from(document.querySelectorAll('#editImagesContainer .editImgUrl')).map(i=>i.value).filter(u=>u.trim());
+            if(images.length===0) images.push('https://cdn.pixabay.com/photo/2016/02/13/13/11/car-1197800_640.jpg');
+            cars[idx]={...cars[idx], brand:document.getElementById('editBrand').value, model:document.getElementById('editModel').value, year:parseInt(document.getElementById('editYear').value), price:parseInt(document.getElementById('editPrice').value), currentBid:parseInt(document.getElementById('editPrice').value), mileage:parseInt(document.getElementById('editMileage').value)||0, fuelType:document.getElementById('editFuelType').value, transmission:document.getElementById('editTransmission').value, description:document.getElementById('editDescription').value, images};
+            localStorage.setItem('cars', JSON.stringify(cars));
+            closeEditModal(); loadMyCars(); showMessage('✅ تم التعديل','success');
+        }
+        function closeEditModal(){ document.getElementById('editModal').style.display='none'; }
+        function logout(){ localStorage.removeItem('currentUser'); window.location.href='../login.html'; }
+
+        document.getElementById('confirmDeleteBtn').onclick = confirmDelete;
+        initYears();
+        addSampleData();
+        loadMyCars();
+        setInterval(() => loadMyCars(), 30000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>الدعم الفني - CarBid</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Cairo',sans-serif;background:radial-gradient(circle at 10% 20%,#070b1f,#03040c);color:#eef5ff}
+  .container{max-width:800px;margin:0 auto;padding:20px}.page-header{text-align:center;padding:40px 0}
+  .page-header h1{font-size:42px;background:linear-gradient(135deg,cyan,magenta);background-clip:text;-webkit-background-clip:text;color:transparent}
+  .support-card{background:rgba(8,12,28,0.7);border-radius:25px;padding:30px;margin:20px 0;border:1px solid rgba(0,255,255,0.2)}
+  .contact-item{display:flex;align-items:center;gap:15px;padding:15px;background:rgba(0,0,0,0.3);border-radius:15px;margin:15px 0}
+  .contact-item i{font-size:30px;color:cyan}.contact-item a{color:#eef5ff;text-decoration:none}
+  .form-group{margin:20px 0}input,textarea{width:100%;padding:12px;border-radius:12px;background:rgba(0,0,0,0.6);border:1px solid cyan;color:white;font-family:inherit}
+  .btn-submit{background:linear-gradient(95deg,cyan,magenta);padding:14px 30px;border:none;border-radius:30px;font-weight:800;cursor:pointer}
+  .back-btn{display:inline-block;margin:20px;padding:12px 24px;background:rgba(0,255,255,0.1);border-radius:30px;text-decoration:none;color:cyan}
+</style>
+</head>
+<body>
+<a href="../index.html" class="back-btn"><i class="fas fa-arrow-right"></i> رجوع</a>
+<div class="container">
+  <div class="page-header"><h1>🎧 الدعم الفني</h1><p>نحن هنا لمساعدتك 24/7</p></div>
+  <div class="support-card">
+    <div class="contact-item"><i class="fab fa-whatsapp"></i><div><h3>واتساب</h3><a href="#">+966 5XXXXXX</a></div></div>
+    <div class="contact-item"><i class="fas fa-envelope"></i><div><h3>البريد الإلكتروني</h3><a href="#">support@carbid.com</a></div></div>
+    <div class="contact-item"><i class="fas fa-phone"></i><div><h3>الدعم الهاتفي</h3><a href="#">9200XXXXX</a></div></div>
+  </div>
+  <div class="support-card"><h3>📝 أرسل استفسارك</h3>
+    <div class="form-group"><input type="text" placeholder="الاسم الكامل" id="supportName"></div>
+    <div class="form-group"><textarea rows="4" placeholder="اكتب مشكلتك هنا..." id="supportMessage"></textarea></div>
+    <button class="btn-submit" onclick="sendSupport()"><i class="fas fa-paper-plane"></i> إرسال</button>
+  </div>
+</div>
+<script>function sendSupport(){let name=document.getElementById('supportName').value;let msg=document.getElementById('supportMessage').value;if(!name||!msg){alert('الرجاء ملء جميع الحقول');return;}alert('✅ تم إرسال طلب الدعم بنجاح، سنتواصل معك قريباً');document.getElementById('supportName').value='';document.getElementById('supportMessage').value='';}</script>
+</body>
+</html>
